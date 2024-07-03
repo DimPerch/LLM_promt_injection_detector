@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from uuid import uuid4
 import asyncio
+from InjectionDetector import CanaryDetector, RexegDetector, LLM_detector
 
 
 app = FastAPI()
@@ -23,13 +24,20 @@ async def process_data(task_id: str,
                        checkbox1: bool,
                        checkbox2: bool,
                        checkbox3: bool):
-    await asyncio.sleep(2)
+    if checkbox1:
+        check1 = LLM_detector().check() # реализовать проверку LLM
+    elif checkbox2:
+        check2 = RexegDetector().check() # реализовать проверку Regex
+    else:
+        pass # тут настоящее выполнение основной модели
     result = {
         "input_field": input_field,
         "checkbox1": checkbox1,
         "checkbox2": checkbox2,
         "checkbox3": checkbox3
     }
+    if checkbox3:
+        check3 = CanaryDetector().check()
     tasks[task_id] = result
 
 
