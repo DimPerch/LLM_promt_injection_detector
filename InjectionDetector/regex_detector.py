@@ -1,4 +1,4 @@
-class CanaryDetector:
+class RexegDetector:
     def __init__(self):
         ...
 

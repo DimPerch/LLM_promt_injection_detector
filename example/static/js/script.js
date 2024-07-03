@@ -16,6 +16,7 @@ async function submitForm(event) {
         <div class="bg-white mr-2 p-3"><span class="text-muted">${message}</span></div>
     `;
     resultList.appendChild(newElement);
+    newElement.scrollIntoView({behavior: 'smooth'})
     document.getElementById('input_field').value = "";
 
     const result = await response.json();
@@ -38,6 +39,7 @@ async function checkResult(task_id) {
             <div class="chat ml-2 p-3">${result.result.input_field}</div>
         `;
         resultList.appendChild(newElement);
+        newElement.scrollIntoView({behavior: 'smooth'})
     } else if (result.status === "processing") {
         setTimeout(() => checkResult(task_id), 1000);
     }
