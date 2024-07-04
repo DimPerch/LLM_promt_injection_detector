@@ -31,9 +31,7 @@ async def process_data(task_id: str,
     
     output_field = input_field
     
-    if checkbox1:
-        check1 = LLM_detector().check() # реализовать проверку LLM
-    elif checkbox2:
+    if checkbox2:
         check2 = RexegDetector().check() # реализовать проверку Regex
     else:
         gemini_api = GeminiAPI()
@@ -43,6 +41,10 @@ async def process_data(task_id: str,
         else:
             output_field = 'Ошибка выполнения. Попробуйте другой запрос.'
 
+    if checkbox1:
+        check1 = LLM_detector().check(output_field)
+        if check1:
+            output_field = "Подозрение на взлом!" 
     if checkbox3:
         check3 = CanaryDetector().check(input_field)
         if check3:

@@ -12,14 +12,12 @@ logger = logging.getLogger(name="YaGPT-API")
 
 class YandexGPTEmbeddings():
     def __init__(self, iam_token=None, sleep_interval=1):
-
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
         self.iam_token = iam_token
         self.sleep_interval = sleep_interval
         self.api_key = self.config.get('Security', 'API-key')
         self.folder_id = self.config.get('Security', 'folder-id')
-        self.modelUri = f"gpt://{self.folder_id}/yandexgpt/latest"
         if self.iam_token:
             self.headers = {'Authorization': 'Bearer ' + self.iam_token}
         if self.api_key:
@@ -33,7 +31,7 @@ class YandexGPTEmbeddings():
                         temperature: float = 0.6,
                         max_tokens: int = 100) -> dict:
         prompt = {
-            "modelUri": self.modelUri,
+            "modelUri": f"gpt://{self.folder_id}/yandexgpt/latest",
             "completionOptions": {
                 "stream": stream,
                 "temperature": temperature,
