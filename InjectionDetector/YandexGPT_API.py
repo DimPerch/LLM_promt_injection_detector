@@ -14,7 +14,7 @@ class YandexGPTEmbeddings():
     def __init__(self, iam_token=None, sleep_interval=1):
 
         self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
+        self.config.read('../config.ini')
         self.iam_token = iam_token
         self.sleep_interval = sleep_interval
         self.api_key = self.config.get('Security', 'API-key')
