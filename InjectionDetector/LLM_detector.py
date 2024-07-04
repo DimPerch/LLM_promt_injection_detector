@@ -1,5 +1,6 @@
 import requests
 from typing import Final
+from concurrent.futures import ThreadPoolExecutor
 
 
 FOREIGN_SERVER_ADDRESS: Final = "138.124.187.4:8989"
@@ -41,11 +42,18 @@ class LLM_detector:
         return response.json()["result"]
 
     def check(self, output: str) -> bool:
-        results = {
-            "chatgpt": self._check_chatgpt(output),
-            "yandexgpt": self._check_yandexgpt(output),
-            "gigachat": self._check_gigachat(output)
-        }
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = {
+                "chatgpt": executor.submit(self._check_chatgpt, output),
+                "yandexgpt": executor.submit(self._check_yandexgpt, output),
+                "gigachat": executor.submit(self._check_gigachat, output)
+            }
+            results = {model: futures[model].result() for model in [
+                "chatgpt",
+                "yandexgpt",
+                "gigachat"
+            ]}
+            
         if not any(map(lambda x: x is not None, results.values())):
             return False  # under discussion
         
