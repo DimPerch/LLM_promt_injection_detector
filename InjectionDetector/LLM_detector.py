@@ -1,6 +1,7 @@
 from time import sleep
 import InjectionDetector.YandexGPT_API
 
+import YandexGPT_API
 
 SYSTEM_PROMPT_FILE = '../InjectionDetector/system_prompt.txt'
 
