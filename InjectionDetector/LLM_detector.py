@@ -51,7 +51,3 @@ class LLM_detector:
             sleep(1)
         print(result)
         return result.count('нет') < 3
-
-
-
-
