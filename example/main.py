@@ -3,8 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from uuid import uuid4
-import asyncio
-from InjectionDetector import CanaryDetector, RexegDetector, LLM_detector
+from InjectionDetector import CanaryDetector, HeuristicDetector, LLM_detector
 
 
 app = FastAPI()
@@ -24,20 +23,25 @@ async def process_data(task_id: str,
                        checkbox1: bool,
                        checkbox2: bool,
                        checkbox3: bool):
+    answer = "я типа ответ модельки"
+    check1 = check2 = check3 = False
     if checkbox1:
-        check1 = LLM_detector().check() # реализовать проверку LLM
+        check1 = LLM_detector().check(input_field)
     elif checkbox2:
-        check2 = RexegDetector().check() # реализовать проверку Regex
-    else:
-        pass # тут настоящее выполнение основной модели
+        check2 = HeuristicDetector().check(input_field)
+    if checkbox3:
+        check3 = CanaryDetector().check()
+
+    if any([check1, check2, check3]):
+        answer = "Уязвимость обнаружена!"
+
     result = {
-        "input_field": input_field,
+        "input_field": answer,
         "checkbox1": checkbox1,
         "checkbox2": checkbox2,
         "checkbox3": checkbox3
     }
-    if checkbox3:
-        check3 = CanaryDetector().check()
+
     tasks[task_id] = result
 
 
