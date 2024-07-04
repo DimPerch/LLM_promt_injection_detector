@@ -4,16 +4,18 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from uuid import uuid4
 import asyncio
-from InjectionDetector import CanaryDetector, RexegDetector, LLM_detector
-# import os
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from InjectionDetector import CanaryDetector, RexegDetector, LLM_detector, HeuristicDetector
+from gemini_api import GeminiAPI
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 tasks = {}
-
 
 @app.get("/")
 async def index(request: Request):
@@ -24,21 +26,40 @@ async def process_data(task_id: str,
                        input_field: str,
                        checkbox1: bool,
                        checkbox2: bool,
-                       checkbox3: bool):
+                       checkbox3: bool,
+                       checkbox4: bool):
+    
+    output_field = input_field
+    
     if checkbox1:
         check1 = LLM_detector().check() # реализовать проверку LLM
     elif checkbox2:
         check2 = RexegDetector().check() # реализовать проверку Regex
     else:
-        pass # тут настоящее выполнение основной модели
+        gemini_api = GeminiAPI()
+        response_text = gemini_api.generate_content(input_field)
+        if response_text:
+            output_field = response_text
+        else:
+            output_field = 'Ошибка выполнения. Попробуйте другой запрос.'
+
+    if checkbox3:
+        check3 = CanaryDetector().check(input_field)
+        if check3:
+            output_field = "Подозрение на взлом!"
+    if checkbox4:
+        check4 = HeuristicDetector().check(input_field)
+        if check4:
+            output_field = "Подозрение на взлом!"
+    
     result = {
         "input_field": input_field,
+        "output_field": output_field,
         "checkbox1": checkbox1,
         "checkbox2": checkbox2,
-        "checkbox3": checkbox3
+        "checkbox3": checkbox3,
+        "checkbox4": checkbox4
     }
-    if checkbox3:
-        check3 = CanaryDetector().check()
     tasks[task_id] = result
 
 
@@ -47,10 +68,11 @@ async def submit_data(background_tasks: BackgroundTasks,
                       input_field: str = Form(...),
                       checkbox1: bool = Form(False),
                       checkbox2: bool = Form(False),
-                      checkbox3: bool = Form(False)):
+                      checkbox3: bool = Form(False),
+                      checkbox4: bool = Form(False)):
     task_id = str(uuid4())
     tasks[task_id] = "processing"
-    background_tasks.add_task(process_data, task_id, input_field, checkbox1, checkbox2, checkbox3)
+    background_tasks.add_task(process_data, task_id, input_field, checkbox1, checkbox2, checkbox3, checkbox4)
     return JSONResponse(content={"task_id": task_id})
 
 

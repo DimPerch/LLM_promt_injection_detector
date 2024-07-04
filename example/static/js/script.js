@@ -36,7 +36,7 @@ async function checkResult(task_id) {
         newElement.classList.add('d-flex', 'flex-row', 'p-3');
         newElement.innerHTML = `
             <img src="https://img.icons8.com/color/48/000000/circled-user-female-skin-type-7.png" width="30" height="30">
-            <div class="chat ml-2 p-3">${result.result.input_field}</div>
+            <div class="chat ml-2 p-3">${result.result.output_field}</div>
         `;
         resultList.appendChild(newElement);
         newElement.scrollIntoView({behavior: 'smooth'})
