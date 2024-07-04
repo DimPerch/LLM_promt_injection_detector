@@ -18,7 +18,7 @@ class LLM_output_detector:
         pass
 
     def _check_chatgpt(self, output: str) -> bool | None:
-        response = requests.post(f"{FOREIGN_SERVER_ADDRESS}/check_output", json={
+        response = requests.post(f"http://{FOREIGN_SERVER_ADDRESS}/check_output", json={
             "output": output
         })
         if not response.ok:
@@ -26,7 +26,7 @@ class LLM_output_detector:
         return response.json()["result"]
     
     def _check_yandexgpt(self, output: str) -> bool | None:
-        response = requests.post(f"{NATIVE_SERVER_ADDRESS}/check_output_yandex", json={
+        response = requests.post(f"http://{NATIVE_SERVER_ADDRESS}/check_output_yandex", json={
             "output": output
         })
         if not response.ok:
@@ -34,7 +34,7 @@ class LLM_output_detector:
         return response.json()["result"]
     
     def _check_gigachat(self, output: str) -> bool | None:
-        response = requests.post(f"{NATIVE_SERVER_ADDRESS}/check_output_gigachat", json={
+        response = requests.post(f"http://{NATIVE_SERVER_ADDRESS}/check_output_gigachat", json={
             "output": output
         })
         if not response.ok:
