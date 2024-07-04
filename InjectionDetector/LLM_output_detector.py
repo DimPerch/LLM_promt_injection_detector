@@ -13,7 +13,7 @@ COEFFICIENTS: Final = {
 }
 
 
-class LLM_detector:
+class LLM_output_detector:
     def __init__(self):
         pass
 
