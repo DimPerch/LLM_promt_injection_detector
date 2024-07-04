@@ -1,14 +1,13 @@
 from time import sleep
+import InjectionDetector.YandexGPT_API
 
-import YandexGPT_API
 
-
-SYSTEM_PROMPT_FILE = 'system_prompt.txt'
+SYSTEM_PROMPT_FILE = '../InjectionDetector/system_prompt.txt'
 
 
 class LLM_detector:
     def __init__(self):
-        self.gpt = YandexGPT_API.YandexGPTEmbeddings()
+        self.gpt = InjectionDetector.YandexGPT_API.YandexGPTEmbeddings()
 
     def answer(self, user_prompt):
         try:
@@ -50,7 +49,7 @@ class LLM_detector:
             result.append(self.answer(text))
             sleep(1)
         print(result)
-        return result.count('NO') < 3
+        return result.count('NO') < 2
 
 
 
