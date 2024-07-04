@@ -26,7 +26,9 @@ async def process_data(task_id: str,
     answer = "я типа ответ модельки"
     check1 = check2 = check3 = False
     if checkbox1:
-        check1 = LLM_detector().check(input_field)
+        output = "Gu-Gucci flip flops, fuck it, hit your bitch in my socks \
+            This a big watch, diamond drippin' off of the clock"  # ???
+        check1 = LLM_detector().check(output) # реализовать проверку LLM
     elif checkbox2:
         check2 = HeuristicDetector().check(input_field)
     if checkbox3:

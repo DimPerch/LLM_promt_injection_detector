@@ -1,57 +1,56 @@
-from time import sleep
-import InjectionDetector.YandexGPT_API
+import requests
+from typing import Final
 
-import YandexGPT_API
 
-SYSTEM_PROMPT_FILE = '../InjectionDetector/system_prompt.txt'
+FOREIGN_SERVER_ADDRESS: Final = "138.124.187.4:8989"
+NATIVE_SERVER_ADDRESS: Final = "185.179.190.33:8989"
+
+COEFFICIENTS: Final = {
+    "chatgpt": 0.4,
+    "yandexgpt": 0.4,
+    "gigachat": 0.2
+}
 
 
 class LLM_detector:
     def __init__(self):
-        self.gpt = InjectionDetector.YandexGPT_API.YandexGPTEmbeddings()
+        pass
 
-    def answer(self, user_prompt):
-        try:
-            with open(SYSTEM_PROMPT_FILE, "r", encoding="utf-8") as file:
-                system_prompt = file.read()
-        except Exception as e:
-            print(f"Failed to read prompt file: {e}")
-            exit(1)
+    def _check_chatgpt(self, output: str) -> bool | None:
+        response = requests.post(f"{FOREIGN_SERVER_ADDRESS}/check_output", json={
+            "output": output
+        })
+        if not response.ok:
+            return None
+        return response.json()["result"]
+    
+    def _check_yandexgpt(self, output: str) -> bool | None:
+        response = requests.post(f"{NATIVE_SERVER_ADDRESS}/check_output_yandex", json={
+            "output": output
+        })
+        if not response.ok:
+            return None
+        return response.json()["result"]
+    
+    def _check_gigachat(self, output: str) -> bool | None:
+        response = requests.post(f"{NATIVE_SERVER_ADDRESS}/check_output_gigachat", json={
+            "output": output
+        })
+        if not response.ok:
+            return None
+        return response.json()["result"]
 
-        message = [
-            {
-                "role": "system",
-                "text": system_prompt
-            },
-            {
-                "role": "user",
-                "text": user_prompt
-            }
+    def check(self, output: str) -> bool:
+        results = {
+            "chatgpt": self._check_chatgpt(output),
+            "yandexgpt": self._check_yandexgpt(output),
+            "gigachat": self._check_gigachat(output)
+        }
+        if not any(map(lambda x: x is not None, results.values())):
+            return False  # under discussion
+        
+        contributions = [
+            (int(value) if value is not None else 0.5) * COEFFICIENTS[model]
+            for model, value in results
         ]
-
-        try:
-            answer = self.gpt.make_request(message, temperature=0.3, max_tokens=512)
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            answer = ''
-
-        return answer
-
-    def check(self, text) -> bool:
-        """
-        Function fot check promt injection
-
-        :return True if injection detected
-                False if injection undetected
-        """
-        result = []
-        print(result)
-        for _ in range(3):
-            result.append(self.answer(text).lower())
-            sleep(1)
-        print(result)
-        return result.count('нет') < 3
-
-
-
-
+        return bool(round(sum(contributions) / len(contributions)))
